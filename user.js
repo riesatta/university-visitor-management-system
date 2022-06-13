@@ -1,5 +1,6 @@
 let users;
 
+
 class User {
   static async injectDB(conn) {
     users = await conn.db("Newdatabase").collection("users")
@@ -13,8 +14,10 @@ class User {
    * @param {*} name
    * @param {*} phonenumber 
    * @param {*} staffnumber
+   * @param {*} role
    */
-  static async register(username, password,name,phonenumber,staffnumber) {
+
+  static async register(username, password,name,phonenumber,staffnumber,role) {
 
 
   return users.findOne({        
@@ -36,11 +39,12 @@ class User {
   {
 
    await users.insertOne({      
-    'username' : username,
-    'password' : password,
-    'name': name,
-    'phonenumber': phonenumber,
-    'staffnumber': staffnumber,
+    username : username,
+    password : password,
+    name: name,
+    phonenumber: phonenumber,
+    staffnumber: staffnumber,
+    role : role
     
    })
    return "new staff registered"
@@ -48,11 +52,11 @@ class User {
    }) 
   }
  
-  static async login(username, password) {
+  static async login(username, password,phonenumber,role) {
 
    return users.findOne({        
   
-   'username': username   
+   username: username   
    }).then(async user =>{
   
   if (user) {
@@ -62,7 +66,7 @@ class User {
     }
     else{
    
-    return "login successful"
+    return user
     }
   }
   else
@@ -76,9 +80,9 @@ class User {
    const exist= await users.findOne({username: username})
     if(exist){
       const data= await users.updateOne(
-        {"username" : username},
+        {username : username},
         {"$set":
-       { 'staffnumber':"20002"}
+       { staffnumber:"200401"}
        } //update
         ).then(result=>{ 
           console.log(result)})
@@ -90,11 +94,13 @@ class User {
     
     }
 
-    static async delete(username) {
+
+
+  static async delete(username,role) {
       const exist= await users.findOne({username: username})
        if(exist){
          const data= await users.deleteOne(
-           {"username" : username}
+           {username : username}
            ).then(result=>{ 
              console.log(result)})
            return data
@@ -103,6 +109,19 @@ class User {
          return "username not exist"
           }
  }
+ static async view(username){
+  const exist= await users.findOne({username: username})
+     if(exist){
+       const user= await users.findOne(
+         {username : username}
+         ).then(result=>{ 
+           console.log(result)})
+         return user
+     }
+     else{
+       return "Username cannot be found"
+        }
+}
 }
  
  module.exports = User;
