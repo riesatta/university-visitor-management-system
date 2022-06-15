@@ -1,8 +1,11 @@
 const MongoClient = require("mongodb").MongoClient;
-const User = require("./user");
+const Staff = require("./staff");
 const Visitor = require("./visitors");
+const Security=require("./security");
+const Admin=require("./admin");
+const Badge=require("./badge");
 MongoClient.connect(
-  // TODO: Connection 
+  
   "mongodb+srv://m001-student:m001-mongodb-basics@sandbox.b5mhw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
   { useNewUrlParser: true },
 ).catch(err => {
@@ -10,9 +13,12 @@ MongoClient.connect(
   process.exit(1)
 }).then(async client => {
   console.log('Connected to MongoDB');
-  User.injectDB(client);
+  Staff.injectDB(client);
+  Visitor.injectDB(client);
+  Security.injectDB(client);
+  Admin.injectDB(client);
+  Badge.injectDB(client);
 })
-
 const express = require('express');
 const { userInfo } = require("os");
 const app = express()
@@ -36,40 +42,16 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-app.get('/find/:username', async(req,res)=>{
-  console.log(req.params);
-  const user= await User.view(req.params.username)
-  if(user=="Username cannot be found")
-  {
-    return res.status(404).send("Username not exist")
-  }
-  return res.status(200).send('User available')
-})
-
-app.get('/find/visitor/:name', async(req,res)=>{
-  console.log(req.params);
-  const userv= await Visitor.viewvisitor(req.params.name)
-  if(userv=="Username cannot be found")
-  {
-    return res.status(404).send("Username not exist")
-  }
-  return res.status(200).send('User available')
-})
-
-
-app.post('/login', async (req, res) => {
+//staff login
+app.post('/login/staff', async (req, res) => {
   //console.log(req.body)
-    let user = await User.login(req.body.username, req.body.password, req.body.phonenumber, req.body.role)
-    if (user.status == "invalid password"){
-      res.status(404).send("Wrong password")
-       
+    let user = await Staff.login(req.body.username, req.body.password, req.body.phonenumber, req.body.role)
+    if (user == "invalid password"||user== "invalid username"){
+      return res.status(404).send("Wrong password or username") 
     }
-    else if(user.status == "No such document"){
-      res.status(404).send("Username not existed")
-        
-    }
+    
     else{
-        res.status(200).json({
+        return res.status(200).json({
           username: user.username,
           phonenumber: user.phonenumber,
           role: user.role,
@@ -81,6 +63,39 @@ app.post('/login', async (req, res) => {
     }
 })
 
+//admin login
+app.post('/login/adminonly', async (req, res) => {
+  const ad = await Admin.login(req.body.name, req.body.password, req.body.role)
+  if (ad == "invalid password"||ad == "invalid username"){
+    return res.status(404).send("Wrong password or username")
+  }
+
+  else{
+      return res.status(200).json({
+        token: generateAccessToken({
+          role: ad.role
+        }),
+        
+      });
+  }
+})
+//security login
+app.post('/login/security', async (req, res) => {
+    const secu = await Security.logins(req.body.securityusername, req.body.password, req.body.role)
+    if (secu == "invalid password"||secu == "invalid username"){
+      return res.status(404).send("Wrong password or username")
+    }
+    else{
+        return res.status(200).json({
+          securityusername: secu.securityusername,
+          role: secu.role,
+          token: generateAccessToken({
+            role: secu.role
+          }),
+          
+        });
+    }
+})
 /**
  * @swagger
  * /login:
@@ -109,31 +124,44 @@ app.post('/login', async (req, res) => {
  *         description: Invalid username or password
  */
 
-app.post('/register', async (req, res) => {
-  //console.log(req.body)
-    const rgs = await User.register(req.body.username, req.body.password, req.body.name, req.body.phonenumber, req.body.staffnumber,req.body.role)
-    if (rgs == "username already existed"){
-        return res.status(404).send("The username or staff number already existed")
-    }
-    else if(rgs=="staff number existed"){
-        return res.status(404).send("The username or staff number already existed")
-    }
-    else{
-        return res.status(200).send("New user registered")
-    }
+
+
+
+
+//PUBLIC TO VIEW 
+app.get('/find/publicview/visitor/:name', async(req,res)=>{
+  const public= await Visitor.viewvisitor(req.params.name)
+  if(public=="Username cannot be found")
+  {
+    return res.status(404).send("Visitor not exist")
+  }
+  return res.status(200).json({
+    name: public.name,
+    "Time arrived": public.time,
+    Date: public.date
+  })
 })
 
-app.post('/register/visitors', async (req, res) => {
-  //console.log(req.body)
-    const rgsv = await Visitor.registervisitor(req.body.name, req.body.vphonenumber, req.body.block)
-    if (rgsv == "username already existed"){
-        return res.status(404).send("The username or staff number already existed")
-    }
-    else{
-        return res.status(200).send("New user registered")
-    }
+app.get('/find/publicview/badge/:visitid', async(req,res)=>{
+  const publicb= await Badge.viewbadge(req.params.visitid)
+  if(publicb=="Id cannot be found")
+  {
+    return res.status(404).send("Id not exist")
+  }
+  return res.status(200).json({
+    name: publicb.name,
+    visitid: publicb.visitid,
+    reason: publicb.reason,
+    "Time arrived": publicb.time,
+    Date: publicb.date,
+    tovisit: publicb.tovisit,
+    block: publicb.block,
+    parking: publicb.parking,
+  })
 })
 
+
+//only authorized person can access
 app.use((req, res, next)=>{
   const authHeader=req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
@@ -149,14 +177,35 @@ app.use((req, res, next)=>{
   })
 });
 
-app.patch('/update/visitor', async (req, res) => {
-  const uptv = await Visitor.update(req.body.name)
-  if(req.user.role=="staff"){
-    if (uptv == "name not exist"){
-      return res.status(404).send("the username does not exist")
+////STAFF///
+//register visitor
+app.post('/register/visitors', async (req, res) => {
+    const rgsv = await Visitor.registervisitor(req.body.name, req.body.phonenumber,req.body.visitid, req.body.block, req.body.time, req.body.date, req.body.tovisit, req.body.Relationship,req.body.reason,req.body.parking)
+    if(req.user.role=="staff"||req.user.role == "admin"){
+      if (rgsv == "visit id existed"){
+        return res.status(404).send("visit id existed")
+    }
+    else{
+        return res.status(200).send("New visitor registered")
+    }
+    }
+    else{
+      return res.status(403).send('Unauthorized')
+    }
+})
+
+//update visitor BLOCK
+app.patch('/update/visitor/block', async (req, res) => {
+  const uptv = await Visitor.updateblock(req.body.name,req.body.block)
+  if(req.user.role=="staff"||req.user.role == "admin"){
+    if (uptv == "Visitor is not exist"){
+      return res.status(404).send("visitor does not exist")
   }
   else{
-    return res.status(200).json(uptv)
+    return res.status(200).json({
+      name: uptv.name,
+      Updated: "Block to visit updated"
+    })
   }  
   }
   else{
@@ -164,30 +213,75 @@ app.patch('/update/visitor', async (req, res) => {
   }
 })
 
-app.patch('/update', async (req, res) => {
-      const upt = await User.update(req.body.username)
-      if(req.user.role=="staff"){
-        if (upt == "username not exist"){
-          return res.status(404).send("the username does not exist")
-      }
-      else{
-        return res.status(200).json(upt)
-      }  
-      }
-      else{
-        return res.status(403).send('Unauthorized')
-      }
-  })
+//update visitor DATE
+app.patch('/update/visitor/date', async (req, res) => {
+  const uptv = await Visitor.updatedate(req.body.name,req.body.date)
+  if(req.user.role=="staff"||req.user.role == "admin"){
+    if (uptv == "Visitor is not exist"){
+      return res.status(404).send("visitor does not exist")
+  }
+  else{
+    return res.status(200).json({
+      name: uptv.name,
+      Updated: "Date updated"
+    })
+  }  
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
 
-  app.delete('/delete', async (req, res) => {
-      const dlt = await User.delete(req.body.username,req.body.role)
-      if(req.user.role == "staff"){
-        if (dlt == "username not exist"){
-          return res.status(404).send("The username not exist")
+//update visitor TIME
+app.patch('/update/visitor/time', async (req, res) => {
+  const uptv = await Visitor.updatetime(req.body.name,req.body.time)
+  if(req.user.role=="staff"){
+    if (uptv == "Visitor is not exist"){
+      return res.status(404).send("visitor does not exist")
+  }
+  else{
+    return res.status(200).json({
+      name: uptv.name,
+      Updated: "Time updated"
+    })
+  }  
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
+
+//update visitor PHONE NUMBER
+app.patch('/update/visitor/phonenumber', async (req, res) => {
+  const uptv = await Visitor.updatephonenumber(req.body.name,req.body.phonenumber)
+  if(req.user.role=="staff"||req.user.role == "admin"){
+    if (uptv == "Visitor is not exist"){
+      return res.status(404).send("visitor does not exist")
+  }
+  else{
+    return res.status(200).json({
+      name: uptv.name,
+      Updated: "Phone Number updated"
+    })
+  }  
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
+  //delete visitor
+  app.delete('/delete/visitor', async (req, res) => {
+      const dlt = await Visitor.delete(req.body.name)
+      if(req.user.role == "staff"||req.user.role == "admin"){
+        if (dlt == "Visitor is not exist"){
+          return res.status(404).send("Visitor is not exist")
           
       }
         else {
-          return res.status(200).json(dlt)
+          return res.status(200).json({
+  
+            status: "DELETED FROM DATA"
+          })
       } 
       }
       else{
@@ -196,15 +290,134 @@ app.patch('/update', async (req, res) => {
       } 
   })
 
-  
+
+//SECURITY
+//find staff
+app.get('/find/staff/:username', async(req,res)=>{
+  let find= await Staff.view(req.params.username)
+  if(req.user.role=="security"||req.user.role == "admin"){
+    if(find=="Username cannot be found")
+  {
+    return res.status(404).send("Username not exist")
+  }
+  return res.status(200).json({
+    username: find.username,
+    staffnumber: find.staffnumber
+  })
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
+
+//SECURITY AND STAFF AND ADMIN
+//find visitor
+app.get('/find/visitor/:name', async(req,res)=>{
+  const userv= await Visitor.viewvisitor(req.params.name)
+  if(req.user.role=="staff"||req.user.role=="security"||req.user.role == "admin"){
+    if(userv=="Username cannot be found")
+  {
+    return res.status(404).send("Visitor not exist")
+  }
+  return res.status(200).json({
+    name: userv.name,
+    "phone number": userv.phonenumber,
+    block: userv.block,
+    "Time arrived": userv.time,
+    Date: userv.date,
+    "Student/Staff to visit": userv.tovisit,
+    Relationship: userv.Relationship,
+  })
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 
 })
 
+//ADMIN
+//register staff
+app.post('/register/staff', async (req, res) => {
+    const rgs = await Staff.register(req.body.username, req.body.password, req.body.name, req.body.phonenumber, req.body.staffnumber,req.body.role)
+    if(req.user.role=="admin"){
+      if (rgs == "username already existed"){
+        return res.status(404).send("The username or staff number already existed")
+    }
+    else if(rgs=="staff number existed"){
+        return res.status(404).send("The username or staff number already existed")
+    }
+    else{
+        return res.status(200).send("New Staff registered")
+    }
+    }
+    else{
+      return res.status(403).send('Unauthorized')
+    }
+})
+
+//delete staff
+app.delete('/delete/staff', async (req, res) => {
+  const dlts = await Staff.delete(req.body.username)
+  if(req.user.role == "admin"){
+    if (dlts == "staff is not exist"){
+      return res.status(404).send("Staff is not exist")
+      
+  }
+    else {
+      return res.status(200).json({
+
+        status: "STAFF DELETED"
+      })
+  } 
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+   
+  } 
+})
+
+//register security
+app.post('/register/security', async (req, res) => {
+    const rgs = await Security.register(req.body.securityname, req.body.securityusername, req.body.password, req.body.phonenumber,req.body.role)
+    if(req.user.role=="admin"){
+      if (rgs == "username already existed"){
+        return res.status(404).send("The security already existed")
+    }
+    else{
+        return res.status(200).send("New Security registered")
+    }
+    }
+    else{
+      return res.status(403).send('Unauthorized')
+    }
+})
+
+//delete security
+app.delete('/delete/security', async (req, res) => {
+  const dltse = await Security.delete(req.body.securityusername)
+  if(req.user.role == "admin"){
+    if (dltse == "Security is not exist"){
+      return res.status(404).send("Security is not exist")
+      
+  }
+    else {
+      return res.status(200).json({
+
+        status: "Security deleted"
+      })
+  } 
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+   
+  } 
+})
 const jwt = require('jsonwebtoken');
+//const Security = require("./security");
 function generateAccessToken(payload) {
   return jwt.sign(payload, "secretkey", {expiresIn:'1h'});
 }
-

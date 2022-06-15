@@ -1,5 +1,5 @@
 const MongoClient = require("mongodb").MongoClient;
-const User = require("./user")
+const User = require("./staff")
 const { faker } = require('@faker-js/faker');
 
 const password = faker.internet.password();
@@ -7,6 +7,12 @@ const phonenumber = faker.phone.phoneNumber();
 const name = faker.name.findName();
 const staffnumber = faker.random.numeric(5);
 const username = faker.internet.userName()
+
+const jwt = require('jsonwebtoken');
+//const Security = require("./security");
+function generateAccessToken(payload) {
+  return jwt.sign(payload, "secretkey", {expiresIn:'1h'});
+}
 
 describe("User Account", () => {
   let client;
@@ -22,31 +28,58 @@ describe("User Account", () => {
     await client.close();
   })
 
-  /*test("New staff registration", async () => {
-    const res = await User.register(username, password ,name ,phonenumber,staffnumber)
+  test("New staff registration",async () => {
+    const res = await User.register(username, password ,name ,phonenumber,staffnumber,"staff")
     expect(res).toBe("new staff registered")
   })
 
   test("Duplicate username", async () => {
-    const res = await User.register("Margarett_Reilly", "1234","Arif","016768868","8")
+    const res = await User.register(username, password ,name ,phonenumber,staffnumber,"staff")
     expect(res).toBe("username already existed")
   })
 
-  test("User duplicate staff number", async () => {
-    const res = await User.register("Arifaiman", "1234","Arif","016768868","84330")
+  test("Staff duplicate staff number", async () => {
+    const res = await User.register(username, password ,name ,phonenumber,staffnumber,"staff")
     expect(res).toBe("staff number existed")
   })
 
-  test("User login invalid password", async () => {
-    const res = await User.login("Vladimir.Spinka88", "1235")
+  test("Staff login invalid password", async () => {
+    const res = await User.login("Faqih", "2022")
     expect(res).toBe("invalid password")
-  })*/
+  })
 
-  test("User login successfully", async () => {
-    const res = await User.login("Vladimir.Spinka88", "snazHxw1S1TKsLW")
-    expect(res).toBe("login successful")
+  test("Staff login successfully", async () => {
+    const res = await User.login("Faqih", "Fifa2022")
+
+        expect(res.username).toBe(username),
+        expect(res.phonenumber).toBe(phonumber),
+        expect(res.role).toBe(role)
   })
   
-  test('should run', () => {
+  test("Delete", async () => {
+    const res = await User.delete("Faqih")
+    expect(res.username).toBe(username)
+  })
+
+  test("View",  async () => {
+    const res = await User.view("Aiman")
+    expect(res.username).toBe(username)
+  
+  })
+
 });
-});
+
+function verifyToken(req,res,next){
+  const authHeader=req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+
+  jwt.verify(token, "secretkey", (err,user)=>{
+    console.log(err)
+
+    if (err) return res.sendStatus(403)
+
+    req.user = user
+
+    next()
+  })
+}

@@ -1,9 +1,9 @@
 let users;
+const bcrypt = require("bcryptjs")
 
-
-class User {
+class Staff {
   static async injectDB(conn) {
-    users = await conn.db("Newdatabase").collection("users")
+    users = await conn.db("Newdatabase").collection("staff")
   }
 /**
    * @remarks
@@ -37,10 +37,11 @@ class User {
   }
   else
   {
-
+    const salt = await bcrypt.genSalt(10);
+		const hashed = await bcrypt.hash(password, salt)
    await users.insertOne({      
     username : username,
-    password : password,
+    password : hashed,
     name: name,
     phonenumber: phonenumber,
     staffnumber: staffnumber,
@@ -52,30 +53,23 @@ class User {
    }) 
   }
  
-  static async login(username, password,phonenumber,role) {
 
-   return users.findOne({        
+
+  static async login(username,password,phonenumber,role){
+    const user = await users.findOne({ username: username })
   
-   username: username   
-   }).then(async user =>{
+    if(!user) {
+      return "invalid username"
+    }
   
-  if (user) {
+    const valid = await bcrypt.compare(password, user.password)
     
-    if(user.password!=password){
+    if(!valid) {
       return "invalid password"
     }
-    else{
-   
-    return user
-    }
+    
+    return user;
   }
-  else
-  {
-   return "No such document"
-  }
-   })
-  }
-
   static async update(username) {
    const exist= await users.findOne({username: username})
     if(exist){
@@ -106,7 +100,7 @@ class User {
            return data
        }
        else{
-         return "username not exist"
+         return "staff is not exist"
           }
  }
  static async view(username){
@@ -116,12 +110,14 @@ class User {
          {username : username}
          ).then(result=>{ 
            console.log(result)})
-         return user
+         return exist
      }
      else{
        return "Username cannot be found"
         }
 }
+
+
 }
  
- module.exports = User;
+ module.exports = Staff;
