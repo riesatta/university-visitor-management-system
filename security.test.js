@@ -52,7 +52,7 @@ describe("User Account", () => {
     
     test("Delete", async () => {
       const res = await Security.delete("Jerald Mante","security")
-      expect(res.securityname).toBe("Jerald Mante")
+      expect(res.securityusername).toBe("Jerald Mante")
     })
   
 

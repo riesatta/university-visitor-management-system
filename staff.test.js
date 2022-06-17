@@ -57,7 +57,7 @@ describe("User Account", () => {
   })
   
   test("Delete", async () => {
-    const res = await User.delete("Jevon_Sawayn","staff")
+    const res = await User.delete("Jevon_Sawayn")
     expect(res.username).toBe("Jevon_Sawayn")
   })
 

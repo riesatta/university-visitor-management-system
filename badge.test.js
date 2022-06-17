@@ -24,7 +24,7 @@ describe("User Account", () => {
   
     
     test("Delete", async () => {
-      const res = await Badge.deletebadge("Messi")
+      const res = await Badge.deletebadge("30")
       expect(res.visitid).toBe("30")
     })
   

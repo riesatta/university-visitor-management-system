@@ -33,7 +33,6 @@ test("New visitor registration", async () => {
 			expect(res.name).toBe("Arthur Shelby"),
 			expect(res.phonenumber).toBe("01119695112"),
 			expect(res.visitid).toBe("04"),
-			expect(res.block).toBe("FKEKK"),
 			expect(res.time).toBe("10.00AM"),
 			expect(res.date).toBe("8/9/2022"),
 			expect(res.tovisit).toBe("Dr.Riduan"),
@@ -55,7 +54,7 @@ test("New visitor registration", async () => {
 
   test("update block", async()=>{
 	const res = await Visitor.updateblock("Messi","Lekir")
-	expect(res.name).toBe(name),
+	expect(res.name).toBe("Messi"),
 			expect(res.block).toBe("Lekir")
   })
 

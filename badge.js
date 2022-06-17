@@ -16,14 +16,14 @@ static async viewbadge(visitid){
             return "Id cannot be found"
             }
       }
-      static async deletebadge(visitid,role) {
+      static async deletebadge(visitid) {
         const exist= await badge.findOne({visitid: visitid})
          if(exist){
            const data= await badge.deleteOne(
              {visitid : visitid}
              ).then(result=>{ 
                console.log(result)})
-             return data
+             return exist
          }
          else{
            return "staff not exist"

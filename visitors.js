@@ -26,7 +26,7 @@ class Visitor {
       "name" : name,
       phonenumber: phonenumber,
       visitid:visitid,
-      "block to visit" : block,
+      block : block,
       time:time,
       date: date,
       tovisit: tovisit,
@@ -38,7 +38,7 @@ class Visitor {
       reason:reason,
       time:time,
       tovisit:tovisit,
-      "block to visit" : block,
+      block : block,
       parking : parking,
       date:date
      })

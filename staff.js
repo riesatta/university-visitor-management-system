@@ -90,14 +90,14 @@ class Staff {
 
 
 
-  static async delete(username,role) {
+  static async delete(username) {
       const exist= await users.findOne({username: username})
        if(exist){
          const data= await users.deleteOne(
            {username : username}
            ).then(result=>{ 
              console.log(result)})
-           return data
+           return exist
        }
        else{
          return "staff is not exist"

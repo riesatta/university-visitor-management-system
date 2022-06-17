@@ -19,9 +19,11 @@
 		"swagger-ui-express": "^4.4.0"
 	},
 	"devDependencies": {
+		"@babel/preset-typescript": "^7.17.12",
 		"@faker-js/faker": "^6.3.1",
 		"@shelf/jest-mongodb": "^2.2.2",
 		"jest": "^27.5.1",
-		"supertest": "^6.2.3"
+		"supertest": "^6.2.3",
+		"ts-jest": "^28.0.5"
 	}
 }

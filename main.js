@@ -408,56 +408,18 @@ app.get('/find/publicview/staff/:username', async(req,res)=>{
  *         description: No staff exist
  */
 
-
-//only authorized person can access
-app.use((req, res, next)=>{
-  const authHeader=req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-
-  jwt.verify(token, "secretkey", (err,user)=>{
-    console.log(err)
-
-    if (err) return res.sendStatus(403)
-
-    req.user = user
-
-    next()
-  })
-});
-
-////STAFF///
-//register visitor
-
-/**
- * @swagger
- * components:
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
- */
-
-/**
- * @swagger
- * security:
- *   - bearerAuth: []
- */
+//visitor register
 app.post('/register/visitors', async (req, res) => {
-    const rgsv = await Visitor.registervisitor(req.body.name, req.body.phonenumber,req.body.visitid, req.body.block, req.body.time, req.body.date, req.body.tovisit, req.body.Relationship,req.body.reason,req.body.parking)
-    if(req.user.role=="staff"||req.user.role == "admin"){
-      if (rgsv == "visit id existed"){
-        return res.status(404).send("visit id existed")
-    }
-    else{
-        return res.status(200).send("New visitor registered")
-    }
-    }
-    else{
-      return res.status(403).send('Unauthorized')
-    }
+  const rgsv = await Visitor.registervisitor(req.body.name, req.body.phonenumber,req.body.visitid, req.body.block, req.body.time, req.body.date, req.body.tovisit, req.body.Relationship,req.body.reason,req.body.parking)
+  
+    if (rgsv == "visit id existed"){
+      return res.status(404).send("visit id existed")
+  }
+  else{
+      return res.status(200).send("New visitor registered")
+  }
+  
 })
- 
 /**
  * @swagger
  * /register/visitors:
@@ -500,6 +462,43 @@ app.post('/register/visitors', async (req, res) => {
  *       401:
  *         description: Unauthorized
  */
+
+//only authorized person can access
+app.use((req, res, next)=>{
+  const authHeader=req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+
+  jwt.verify(token, "secretkey", (err,user)=>{
+    console.log(err)
+
+    if (err) return res.sendStatus(403)
+
+    req.user = user
+
+    next()
+  })
+});
+
+////STAFF///
+
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
+
+/**
+ * @swagger
+ * security:
+ *   - bearerAuth: []
+ */
+ 
+
 
 //update visitor BLOCK
 app.patch('/update/visitor/block', async (req, res) => {
