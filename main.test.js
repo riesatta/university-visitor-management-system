@@ -212,7 +212,7 @@ it('delete visitor', async () => {
 
   //find staff
   it('view staff', async()=>{
-    return request.get('/find/staff/Aiman')
+    return request.get('/find/publicview/staff/Aiman')
     .expect('Content-Type', /json/)
     .expect(200).then(response=>{
       expect(response.body).toEqual(
@@ -226,7 +226,7 @@ it('delete visitor', async () => {
   
   //no visitor
   it('no staff', async()=>{
-    return request.get('/find/staff/messi')
+    return request.get('/find/publicview/staff/messi')
     .expect('Content-Type', /text/)
     .expect(404).then(response=>{
       expect(response.text).toBe("Username not exist");

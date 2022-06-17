@@ -2,11 +2,11 @@ const MongoClient = require("mongodb").MongoClient;
 const User = require("./staff")
 const { faker } = require('@faker-js/faker');
 
-const password = faker.internet.password();
-const phonenumber = faker.phone.phoneNumber();
-const name = faker.name.findName();
-const staffnumber = faker.random.numeric(5);
-const username = faker.internet.userName()
+const fpassword = faker.internet.password();
+const fphonenumber = faker.phone.phoneNumber();
+const fname = faker.name.findName();
+const fstaffnumber = faker.random.numeric(5);
+const fusername = faker.internet.userName()
 
 const jwt = require('jsonwebtoken');
 //const Security = require("./security");
@@ -29,41 +29,41 @@ describe("User Account", () => {
   })
 
   test("New staff registration",async () => {
-    const res = await User.register(username, password ,name ,phonenumber,staffnumber,"staff")
+    const res = await User.register(fusername, fpassword ,fname ,fphonenumber,fstaffnumber,"staff")
     expect(res).toBe("new staff registered")
   })
 
   test("Duplicate username", async () => {
-    const res = await User.register(username, password ,name ,phonenumber,staffnumber,"staff")
+    const res = await User.register(fusername, fpassword ,fname ,fphonenumber,fstaffnumber,"staff")
     expect(res).toBe("username already existed")
   })
 
   test("Staff duplicate staff number", async () => {
-    const res = await User.register(username, password ,name ,phonenumber,staffnumber,"staff")
+    const res = await User.register(fusername, fpassword ,fname ,fphonenumber,fstaffnumber,"staff")
     expect(res).toBe("staff number existed")
   })
 
   test("Staff login invalid password", async () => {
-    const res = await User.login("Faqih", "2022")
+    const res = await User.login("Aiman", "badar","0172984186","staff")
     expect(res).toBe("invalid password")
   })
 
   test("Staff login successfully", async () => {
-    const res = await User.login("Faqih", "Fifa2022")
+    const res = await User.login("Aiman", "Badar","0172984186","staff")
 
-        expect(res.username).toBe(username),
-        expect(res.phonenumber).toBe(phonumber),
-        expect(res.role).toBe(role)
+        expect(res.username).toBe("Aiman"),
+        expect(res.phonenumber).toBe("0172984186"),
+        expect(res.role).toBe("staff")
   })
   
   test("Delete", async () => {
-    const res = await User.delete("Faqih")
-    expect(res.username).toBe(username)
+    const res = await User.delete("Jevon_Sawayn","staff")
+    expect(res.username).toBe("Jevon_Sawayn")
   })
 
   test("View",  async () => {
     const res = await User.view("Aiman")
-    expect(res.username).toBe(username)
+    expect(res.username).toBe("Aiman")
   
   })
 

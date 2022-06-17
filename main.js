@@ -129,6 +129,7 @@ app.post('/login/security', async (req, res) => {
 
 
 //PUBLIC TO VIEW 
+//visitor
 app.get('/find/publicview/visitor/:name', async(req,res)=>{
   const public= await Visitor.viewvisitor(req.params.name)
   if(public=="Username cannot be found")
@@ -142,6 +143,7 @@ app.get('/find/publicview/visitor/:name', async(req,res)=>{
   })
 })
 
+//badge
 app.get('/find/publicview/badge/:visitid', async(req,res)=>{
   const publicb= await Badge.viewbadge(req.params.visitid)
   if(publicb=="Id cannot be found")
@@ -158,6 +160,25 @@ app.get('/find/publicview/badge/:visitid', async(req,res)=>{
     block: publicb.block,
     parking: publicb.parking,
   })
+})
+ 
+//staff
+app.get('/find/publicview/staff/:username', async(req,res)=>{
+  let find= await Staff.view(req.params.username)
+  if(req.user.role=="security"||req.user.role == "admin"){
+    if(find=="Username cannot be found")
+  {
+    return res.status(404).send("Username not exist")
+  }
+  return res.status(200).json({
+    username: find.username,
+    staffnumber: find.staffnumber,
+    phonenumber: find.phonenumber
+  })
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
 })
 
 
@@ -292,23 +313,6 @@ app.patch('/update/visitor/phonenumber', async (req, res) => {
 
 
 //SECURITY
-//find staff
-app.get('/find/staff/:username', async(req,res)=>{
-  let find= await Staff.view(req.params.username)
-  if(req.user.role=="security"||req.user.role == "admin"){
-    if(find=="Username cannot be found")
-  {
-    return res.status(404).send("Username not exist")
-  }
-  return res.status(200).json({
-    username: find.username,
-    staffnumber: find.staffnumber
-  })
-  }
-  else{
-    return res.status(403).send('Unauthorized')
-  }
-})
 
 //SECURITY AND STAFF AND ADMIN
 //find visitor

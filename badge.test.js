@@ -24,21 +24,21 @@ describe("User Account", () => {
   
     
     test("Delete", async () => {
-      const res = await Badge.deletebadge("Faqih")
-      expect(res.visitid).toBe(visitid)
+      const res = await Badge.deletebadge("Messi")
+      expect(res.visitid).toBe("30")
     })
   
     test("View", async () => {
       const res = await Badge.viewbadge("01")
-      expect(res.name).toBe(name),
-      expect(res.visitid).toBe(visitid),
-      expect(res.block).toBe(block),
-      expect(res.time).toBe(time),
-      expect(res.date).toBe(date),
-      expect(res.tovisit).toBe(tovisit),
+      expect(res.name).toBe("Luong In Yee"),
+      expect(res.visitid).toBe("01"),
+      expect(res.block).toBe("FTKMP"),
+      expect(res.time).toBe("5.00PM"),
+      expect(res.date).toBe("21/6/2022"),
+      expect(res.tovisit).toBe("Luong In Lee"),
   
-      expect(res.reason).toBe(reason),
-      expect(res.parking).toBe(parking)
+      expect(res.reason).toBe("Family visit"),
+      expect(res.parking).toBe("206A")
 
     })
     

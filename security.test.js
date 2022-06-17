@@ -44,15 +44,15 @@ describe("User Account", () => {
     })
   
     test("security login successfully", async () => {
-      const res = await Security.logins("Faqih", "Fifa2022")
-      expect(res.securityname).toBe(securityname),
-      expect(res.phonenumber).toBe(phonenumber),
-      expect(res.role).toBe(role)
+      const res = await Security.logins("KPG", "123","security")
+      expect(res.securityname).toBe("Kim Pan Gon"),
+      expect(res.phonenumber).toBe("01876528175"),
+      expect(res.role).toBe("security")
     })
     
     test("Delete", async () => {
-      const res = await Security.delete("alcantara")
-      expect(res.securityname).toBe(securityname)
+      const res = await Security.delete("Jerald Mante","security")
+      expect(res.securityname).toBe("Jerald Mante")
     })
   
 

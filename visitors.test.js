@@ -30,16 +30,16 @@ test("New visitor registration", async () => {
   test("Find visitor", async () => {
     const res = await Visitor.viewvisitor("Arthur Shelby")
     
-			expect(res.name).toBe(name),
-			expect(res.phonenumber).toBe(phonenumber),
-			expect(res.visitid).toBe(visitid),
-			expect(res.block).toBe(block),
-			expect(res.time).toBe(time),
-			expect(res.date).toBe(date),
-			expect(res.tovisit).toBe(tovisit),
-			expect(res.Relationship).toBe(Relationship),
-			expect(res.reason).toBe(reason),
-			expect(res.parking).toBe(parking)
+			expect(res.name).toBe("Arthur Shelby"),
+			expect(res.phonenumber).toBe("01119695112"),
+			expect(res.visitid).toBe("04"),
+			expect(res.block).toBe("FKEKK"),
+			expect(res.time).toBe("10.00AM"),
+			expect(res.date).toBe("8/9/2022"),
+			expect(res.tovisit).toBe("Dr.Riduan"),
+			expect(res.Relationship).toBe("-"),
+			expect(res.reason).toBe("business"),
+			expect(res.parking).toBe("207A")
 			
 			
 			
@@ -54,31 +54,31 @@ test("New visitor registration", async () => {
   
 
   test("update block", async()=>{
-	const res = await Visitor.updateblock("Wahab","Lekir")
+	const res = await Visitor.updateblock("Messi","Lekir")
 	expect(res.name).toBe(name),
-			expect(res.block).toBe(block)
+			expect(res.block).toBe("Lekir")
   })
 
   test("update date", async()=>{
-	const res = await Visitor.updatedate("Wahab","21/8/2022")
-	expect(res.name).toBe(name),
-	expect(res.date).toBe(date)
+	const res = await Visitor.updatedate("Messi","21/8/2022")
+	expect(res.name).toBe("Wahab"),
+	expect(res.date).toBe("21/8/2022")
   })
 
   test("update time", async()=>{
-	const res = await Visitor.updatetime("Wahab","6.00AM")
-	expect(res.name).toBe(name),
-	expect(res.time).toBe(time)
+	const res = await Visitor.updatetime("Messi","6.00AM")
+	expect(res.name).toBe("Messi"),
+	expect(res.time).toBe("6.00AM")
   })
 
   test("update phonenumber", async()=>{
-	const res = await Visitor.updatephonenumber("Wahab","098765251")
-	expect(res.name).toBe(name),
-	expect(res.phonenumber).toBe(phonenumber)
+	const res = await Visitor.updatephonenumber("Messi","098765251")
+	expect(res.name).toBe("Messi"),
+	expect(res.phonenumber).toBe("098765251")
   })
 
   test("Delete", async () => {
-    const res = await Visitor.delete("Wahab")
-	expect(res.name).toBe(name)
+    const res = await Visitor.delete("Messi")
+	expect(res.name).toBe("Messi")
 });
 })

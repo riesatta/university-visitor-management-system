@@ -16,8 +16,8 @@ describe("User Account", () => {
   
     test("Admin login successfully", async () => {
       const res = await Admin.login("University Backend Admin", "ogx1234")
-      expect(res.username).toBe(username),
-      expect(res.role).toBe(role)
+      expect(res.username).toBe("University Backend Admin"),
+      expect(res.role).toBe("ogx1234")
     })
      });
   

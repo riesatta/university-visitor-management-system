@@ -73,6 +73,13 @@ class Visitor {
             } //update
              ).then(result=>{ 
                console.log(result)})
+               const datab= await badge.updateOne(
+                {name : name},
+                {"$set":
+               { "block to visit":block}
+               } //update
+                )
+            
              return exist
          }
          else{
@@ -92,6 +99,12 @@ static async updatedate(name,date) {
         } //update
         ).then(result=>{ 
         console.log(result)})
+        const datab= await badge.updateOne(
+          {name : name},
+          {"$set":
+         { date:date}
+         } //update
+          )
         return exist
     }
     else{
@@ -111,6 +124,12 @@ static async updatetime(name,time) {
         } //update
         ).then(result=>{ 
         console.log(result)})
+        const datab= await badge.updateOne(
+          {name : name},
+          {"$set":
+         { time:time}
+         } //update
+          )        
         return exist
     }
     else{
@@ -130,6 +149,12 @@ static async updatephonenumber(name,phonenumber) {
         } //update
         ).then(result=>{ 
         console.log(result)})
+        const datab= await badge.updateOne(
+          {name : name},
+          {"$set":
+         { phonenumber:phonenumber}
+         } //update
+          )
         return exist
     }
     else{
