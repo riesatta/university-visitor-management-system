@@ -1,294 +1,496 @@
-const supertest = require('supertest');
-const request = supertest('http://localhost:5000');
-const { faker } = require('@faker-js/faker');
-const { response } = require('express');
-const fakepass = faker.internet.password();
-const fphone = faker.phone.phoneNumber();
-const fkname = faker.name.findName();
-const fstaffnumber = faker.random.numeric(5);
-const fusername = faker.internet.userName()
-describe('Express Route Test', function () {
-  //find visitor
-  it('view visitor', async()=>{
-    return request.get('/find/publicview/visitor/Arthur Shelby')
-    .expect('Content-Type', /json/)
-    .expect(200).then(response=>{
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          name:expect.any(String),
-          "Time arrived":expect.any(String),
-          Date: expect.any(String)
-        })
-      );
-    });
-  });
+const MongoClient = require("mongodb").MongoClient;
+const Staff = require("./staff");
+const Visitor = require("./visitors");
+const Security=require("./security");
+const Admin=require("./admin");
+const Badge=require("./badge");
+MongoClient.connect(
   
-  //no visitor
-  it('no visitor', async()=>{
-    return request.get('/find/publicview/visitor/kroos')
-    .expect('Content-Type', /text/)
-    .expect(404).then(response=>{
-      expect(response.text).toBe("Visitor not exist");
-    });
-  });
-
-  //find badge
-  it('view visitor', async()=>{
-    return request.get('/find/publicview/badge/01')
-    .expect('Content-Type', /json/)
-    .expect(200).then(response=>{
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          name:expect.any(String),
-          visitid:expect.any(String),
-          reason:expect.any(String),
-          "Time arrived":expect.any(String),
-          Date: expect.any(String),
-          tovisit:expect.any(String),
-          block:expect.any(String),
-          parking:expect.any(String),
-        })
-      );
-    });
-  });
-  
-  //no badge
-  it('no badge', async()=>{
-    return request.get('/find/publicview/badge/:visitid')
-    .expect('Content-Type', /text/)
-    .expect(404).then(response=>{
-      expect(response.text).toBe("Id not exist");
-    });
-  });
-
-  //login staff
-  it('staff login successfully', async () => {
-    return request
-      .post('/login/staff')
-      .send({username: "Arif", password: "1234" })
-      .expect('Content-Type', /json/)
-      .expect(200).then(response => {
-				expect(response.body).toEqual(
-					expect.objectContaining({
-						username: expect.any(String),
-            phonenumber: expect.any(String),
-            role: expect.any(String),
-            token: expect.any(String)
-            
-					})
-				);
-			});
-  });
-
-//login staff faile
-  it('staff login failed', async () => {
-    return request
-      .post('/login/staff')
-      .send({username: "Arifaiman", password: "1236" })
-      .expect('Content-Type', /text/)
-      .expect(404).then(response => {
-        expect(response.text).toEqual("Wrong password or username");
-      });
-  })
-
-//login admin
-it('admin login successfully', async () => {
-  return request
-    .post('/login/adminonly')
-    .send({name: "University Backend Admin", password: "ogx1234" })
-    .expect('Content-Type', /json/)
-    .expect(200).then(response => {
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          token: expect.any(String)
-          
-        })
-      );
-    });
-});
-
-//admin fail login
-it('admin login failed', async () => {
-  return request
-    .post('/login/adminonly')
-    .send({name: "Arifaiman", password: "1235" })
-    .expect('Content-Type', /text/)
-    .expect(404).then(response => {
-      expect(response.text).toEqual("Wrong password or username");
-    });
+  "mongodb+srv://m001-student:m001-mongodb-basics@sandbox.b5mhw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+  { useNewUrlParser: true },
+).catch(err => {
+  console.error(err.stack)
+  process.exit(1)
+}).then(async client => {
+  console.log('Connected to MongoDB');
+  Staff.injectDB(client);
+  Visitor.injectDB(client);
+  Security.injectDB(client);
+  Admin.injectDB(client);
+  Badge.injectDB(client);
 })
+const express = require('express');
+const { userInfo } = require("os");
+const app = express()
+const port = process.env.PORT || 5000
 
-//login security success
-it('security login successfully', async () => {
-  return request
-    .post('/login/security')
-    .send({securityusername: "KPG", password: "123" })
-    .expect('Content-Type', /json/)
-    .expect(200).then(response => {
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          securityusername:expect.any(String),
-          role:expect.any(String),
-          token: expect.any(String)
-          
-        })
-      );
-    });
-});
-
-//login security fail
-it('security login failed', async () => {
-  return request
-    .post('/login/security')
-    .send({username: "Arifaiman", password: "1235" })
-    .expect('Content-Type', /text/)
-    .expect(404).then(response => {
-      expect(response.text).toEqual("Wrong password or username");
-    });
-})
-
-//register visitor
-  it('visitor register', async()=>{
-    return request
-    .post('/register/visitors')
-    .send({name:"Timo Werner",phonenumber:"01119692051",visitid:"10",block:"Satria",time:"5.00PM",date: "20/6/2022",tovisit:"Kai Havertz",Relationship:"Brother",reason:"Family visit",parking:"307B"})
-    .expect(200)
-  });
-
-//visitor register fail
-it('visitor register failed', async () => {
-  return request
-    .post('/register/visitors')
-    .send({name:"Timo Werner",phonenumber:"01119692051",visitid:"01",block:"Satria",time:"5.00PM",date: "20/6/2022",tovisit:"Kai Havertz",Relationship:"Brother",reason:"Family visit",parking:"307B"})
-    .expect('Content-Type', /text/)
-    .expect(404).then(response => {
-      expect(response.text).toEqual("visit id existed");
-    });
-})
-
-//update block
-it('update block', async () => {
-  return request
-.patch('/update/visitor/block')
-.send({name: 'Arthur Shelby', block:"Dewan Dekan"})
-.expect(200)
-
-});
-
-//update time
-it('update time', async () => {
-  return request
-.patch('/update/visitor/time')
-.send({name: 'Arthur Shelby', time:"9.00AM"})
-.expect(200)
-
-});
-
-//update phonenumber
-it('update phonenumber', async () => {
-  return request
-.patch('/update/visitor/phonenumber')
-.send({name: 'Arthur Shelby', phonenumber:"0172635168"})
-.expect(200)
-
-});
-
-//update date
-it('update date', async () => {
-  return request
-.patch('/update/visitor/date')
-.send({name: 'Arthur Shelby', date:"9/9/2022"})
-.expect(200)
-
-});
-
-//delete visitor
-it('delete visitor', async () => {
-  return request
-      .delete('/delete/visitor')
-      .send({name: 'Wahab'})
-      .expect(200)
-});
-
-  //find staff
-  it('view staff', async()=>{
-    return request.get('/find/publicview/staff/Aiman')
-    .expect('Content-Type', /json/)
-    .expect(200).then(response=>{
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          username:expect.any(String),
-          staffnumber:expect.any(String)
-        })
-      );
-    });
-  });
-  
-  //no visitor
-  it('no staff', async()=>{
-    return request.get('/find/publicview/staff/messi')
-    .expect('Content-Type', /text/)
-    .expect(404).then(response=>{
-      expect(response.text).toBe("Username not exist");
-    });
-  });
-
-//register staff
-it('staff register', async()=>{
-  return request
-  .post('/register/staff')
-  .send({username:"lakaka",password:"Chelshit",name:"Timo Werner",phonenumber:"0178926152",staffnumber:fstaffnumber,role:"staff"})
-  .expect(200)
-}); 
-
-//register fail
-it('staff register', async()=>{
-  return request
-  .post('/register/staff')
-  .send({username:"lakaka",password:"Chelshit",name:"Timo Werner",phonenumber:"0178926152",staffnumber:fstaffnumber,role:"staff"})
-  .expect(404)
-}); 
-
-//delete staff
-it('delete visitor', async () => {
-  return request
-      .delete('/delete/staff')
-      .send({username: 'lakaka'})
-      .expect(200)
-});
-
-//register security
-it('staff register', async()=>{
-  return request
-  .post('/register/staff')
-  .send({securityname:"Kimmich",securityusername:"Joshua",password:"Chelshit",phonenumber:"0178926152",role:"security"})
-  .expect(200)
-}); 
-
-//security register fail
-it('staff register', async()=>{
-  return request
-  .post('/register/staff')
-  .send({securityname:"Kimmich",securityusername:"Joshua",password:"Chelshit",phonenumber:"0178926152",role:"security"})
-  .expect(404)
-}); 
- 
-//delete security
-it('delete security', async () => {
-  return request
-      .delete('/delete/security')
-      .send({securityusername: 'Kimmich'})
-      .expect(200)
-});
-});
-
-
-const jwt = require('jsonwebtoken');
-//const Security = require("./security");
-function generateAccessToken(payload) {
-  return jwt.sign(payload, "secretkey", {expiresIn:'1h'});
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const options = {
+  definition:{
+    openapi: '3.0.0',
+    info:{
+      title: 'MyVMS API',
+      version: '1.0.0',
+    },
+  },
+  apis: ['./main.js'],
 }
-function verifyToken(req,res,next){
+const swaggerSpec = swaggerJsdoc(options);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+
+//staff login
+app.post('/login/staff', async (req, res) => {
+  //console.log(req.body)
+    let user = await Staff.login(req.body.username, req.body.password, req.body.phonenumber, req.body.role)
+    if (user == "invalid password"||user== "invalid username"){
+      return res.status(404).send("Wrong password or username") 
+    }
+    
+    else{
+        return res.status(200).json({
+          username: user.username,
+          phonenumber: user.phonenumber,
+          role: user.role,
+          token: generateAccessToken({
+            role: user.role
+          }),
+          
+        });
+    }
+})
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Staff:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         username: 
+ *           type: string
+ *         password: 
+ *           type: string
+ *         name:
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         staffnumber:
+ *           type: string
+ *         role:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /login/staff:
+ *   post:
+ *     description: Staff Login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               staffnumber:
+ *                 type
+ *               role: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Staff'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//admin login
+app.post('/login/adminonly', async (req, res) => {
+  const ad = await Admin.login(req.body.name, req.body.password, req.body.role)
+  if (ad == "invalid password"||ad == "invalid username"){
+    return res.status(404).send("Wrong password or username")
+  }
+
+  else{
+      return res.status(200).json({
+        token: generateAccessToken({
+          role: ad.role
+        }),
+        
+      });
+  }
+})
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Admin:
+ *       type: object
+ *       properties:
+ *         token: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /login/adminonly:
+ *   post:
+ *     description: Admin Login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               token: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Admin'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//security login
+app.post('/login/security', async (req, res) => {
+    const secu = await Security.logins(req.body.securityusername, req.body.password, req.body.role)
+    if (secu == "invalid password"||secu == "invalid username"){
+      return res.status(404).send("Wrong password or username")
+    }
+    else{
+        return res.status(200).json({
+          securityusername: secu.securityusername,
+          role: secu.role,
+          token: generateAccessToken({
+            role: secu.role
+          }),
+          
+        });
+    }
+})
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Security:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         securityname: 
+ *           type: string
+ *         securityusername: 
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         role:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /login/security:
+ *   post:
+ *     description: Security Login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               securityusername: 
+ *                 type: string
+ *               role: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Security'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+
+
+
+
+//PUBLIC TO VIEW 
+//visitor
+app.get('/find/publicview/visitor/:name', async(req,res)=>{
+  const public= await Visitor.viewvisitor(req.params.name)
+  if(public=="Username cannot be found")
+  {
+    return res.status(404).send("Visitor not exist")
+  }
+  return res.status(200).json({
+    name: public.name,
+    "Time arrived": public.time,
+    Date: public.date
+  })
+})
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Visitor:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         name: 
+ *           type: string
+ *         phonenumber: 
+ *           type: string
+ *         visitid:
+ *           type: string
+ *         time:
+ *           type: string
+ *         date:
+ *           type: string
+ *         tovisit:
+ *           type: string
+ *         Relationship:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /find/publicview/visitor/:name:
+ *   get:
+ *     description: View Visitor
+ *     requestHeader:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               visitorid:
+ *                 type: string
+ *               time:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *               tovisit:
+ *                 type: string
+ *               Relationship: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//badge
+app.get('/find/publicview/badge/:visitid', async(req,res)=>{
+  const publicb= await Badge.viewbadge(req.params.visitid)
+  if(publicb=="Id cannot be found")
+  {
+    return res.status(404).send("Id not exist")
+  }
+  return res.status(200).json({
+    name: publicb.name,
+    visitid: publicb.visitid,
+    reason: publicb.reason,
+    "Time arrived": publicb.time,
+    Date: publicb.date,
+    tovisit: publicb.tovisit,
+    block: publicb.block,
+    parking: publicb.parking,
+  })
+})
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Badge:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         name: 
+ *           type: string
+ *         visitid: 
+ *           type: string
+ *         reason:
+ *           type: string
+ *         time:
+ *           type: string
+ *         tovisit:
+ *           type: string
+ *         block to visit:
+ *           type: string
+ *         parking:
+ *           type: string
+ *         date:
+ *           type
+ *          
+ */
+
+/**
+ * @swagger
+ * /find/publicview/badge/:visitid:
+ *   get:
+ *     description: View Badge
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               visitid:
+ *                 type: string
+ *               reason:
+ *                 type: string
+ *               time:
+ *                 type: string
+ *               tovisit:
+ *                 type
+ *               block to visit: 
+ *                 type: string
+ *               parking:
+ *                 type: 
+ *               date:
+ *                 type:
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Badge'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+ 
+//staff
+app.get('/find/publicview/staff/:username', async(req,res)=>{
+  let find= await Staff.view(req.params.username)
+  if(req.user.role=="security"||req.user.role == "admin"){
+    if(find=="Username cannot be found")
+  {
+    return res.status(404).send("Username not exist")
+  }
+  return res.status(200).json({
+    username: find.username,
+    staffnumber: find.staffnumber,
+    phonenumber: find.phonenumber
+  })
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     View_Staff:
+ *       type: object
+ *       properties:
+ *         username: 
+ *           type: string
+ *         password: 
+ *           type: string
+ *         name:
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         staffnumber:
+ *           type: string
+ *         role:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /find/publicview/staff/:username:
+ *   get:
+ *     description: View Staff
+ *     parameters:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               staffnumber:
+ *                 type
+ *               role: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/View_Staff'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+
+//only authorized person can access
+app.use((req, res, next)=>{
   const authHeader=req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
 
@@ -301,4 +503,838 @@ function verifyToken(req,res,next){
 
     next()
   })
+});
+
+////STAFF///
+//register visitor
+app.post('/register/visitors', async (req, res) => {
+    const rgsv = await Visitor.registervisitor(req.body.name, req.body.phonenumber,req.body.visitid, req.body.block, req.body.time, req.body.date, req.body.tovisit, req.body.Relationship,req.body.reason,req.body.parking)
+    if(req.user.role=="staff"||req.user.role == "admin"){
+      if (rgsv == "visit id existed"){
+        return res.status(404).send("visit id existed")
+    }
+    else{
+        return res.status(200).send("New visitor registered")
+    }
+    }
+    else{
+      return res.status(403).send('Unauthorized')
+    }
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Reg_Visitor:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         phonenumber: 
+ *           type: string
+ *         visitid:
+ *           type: string
+ *         block to visit:
+ *           type: string
+ *         time:
+ *           type: string
+ *         date:
+ *           type: string
+ *         tovisit:
+ *           type: string
+ *         Relationship:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /register/visitors:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Register Visitor
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               visitid:
+ *                 type: string
+ *               block to visit:
+ *                 type: string
+ *               time:
+ *                 type
+ *               date: 
+ *                 type: string
+ *               tovisit:
+ *                 type: string
+ *               Relationship: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful register
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Reg_Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//update visitor BLOCK
+app.patch('/update/visitor/block', async (req, res) => {
+  const uptv = await Visitor.updateblock(req.body.name,req.body.block)
+  if(req.user.role=="staff"||req.user.role == "admin"){
+    if (uptv == "Visitor is not exist"){
+      return res.status(404).send("visitor does not exist")
+  }
+  else{
+    return res.status(200).json({
+      name: uptv.name,
+      Updated: "Block to visit updated"
+    })
+  }  
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Block_Visitor:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         name: 
+ *           type: string
+ *         block to visit: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /update/visitor/block:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Update visitor's block
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               block to visit:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Block_Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//update visitor DATE
+app.patch('/update/visitor/date', async (req, res) => {
+  const uptv = await Visitor.updatedate(req.body.name,req.body.date)
+  if(req.user.role=="staff"||req.user.role == "admin"){
+    if (uptv == "Visitor is not exist"){
+      return res.status(404).send("visitor does not exist")
+  }
+  else{
+    return res.status(200).json({
+      name: uptv.name,
+      Updated: "Date updated"
+    })
+  }  
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Visitor_Date:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         date: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /update/:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Staff Login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               staffnumber:
+ *                 type
+ *               role: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Visitor_Date'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//update visitor TIME
+app.patch('/update/visitor/time', async (req, res) => {
+  const uptv = await Visitor.updatetime(req.body.name,req.body.time)
+  if(req.user.role=="staff"){
+    if (uptv == "Visitor is not exist"){
+      return res.status(404).send("visitor does not exist")
+  }
+  else{
+    return res.status(200).json({
+      name: uptv.name,
+      Updated: "Time updated"
+    })
+  }  
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Visitor_Time:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         time: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /update/visitor/time:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Update visitor's timr
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               time:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Visitor_Time'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//update visitor PHONE NUMBER
+app.patch('/update/visitor/phonenumber', async (req, res) => {
+  const uptv = await Visitor.updatephonenumber(req.body.name,req.body.phonenumber)
+  if(req.user.role=="staff"||req.user.role == "admin"){
+    if (uptv == "Visitor is not exist"){
+      return res.status(404).send("visitor does not exist")
+  }
+  else{
+    return res.status(200).json({
+      name: uptv.name,
+      Updated: "Phone Number updated"
+    })
+  }  
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Visitor_Time:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         time: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /update/visitor/block:
+ *   patch:
+ *     - bearerAuth: []
+ *     description: Update visitor's block
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               time:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Visitor_Time'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+  //delete visitor
+  app.delete('/delete/visitor', async (req, res) => {
+      const dlt = await Visitor.delete(req.body.name)
+      if(req.user.role == "staff"||req.user.role == "admin"){
+        if (dlt == "Visitor is not exist"){
+          return res.status(404).send("Visitor is not exist")
+          
+      }
+        else {
+          return res.status(200).json({
+  
+            status: "DELETED FROM DATA"
+          })
+      } 
+      }
+      else{
+        return res.status(403).send('Unauthorized')
+       
+      } 
+  })
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Delete_Visitor:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /delete/visitor:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Delete Visitor
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Delete_Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//SECURITY
+
+//SECURITY AND STAFF AND ADMIN
+//find visitor
+app.get('/find/visitor/:name', async(req,res)=>{
+  const userv= await Visitor.viewvisitor(req.params.name)
+  if(req.user.role=="staff"||req.user.role=="security"||req.user.role == "admin"){
+    if(userv=="Username cannot be found")
+  {
+    return res.status(404).send("Visitor not exist")
+  }
+  return res.status(200).json({
+    name: userv.name,
+    "phone number": userv.phonenumber,
+    block: userv.block,
+    "Time arrived": userv.time,
+    Date: userv.date,
+    "Student/Staff to visit": userv.tovisit,
+    Relationship: userv.Relationship,
+  })
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+  }
+})
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Find_Visitor:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         phone number: 
+ *           type: string
+ *         Time arrived: 
+ *           type: string
+ *         Date:
+ *           type: string
+ *         Student/Staff to visit: 
+ *           type: string
+ *         Relationship:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /find/visitor:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Update visitor's block
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               phone number:
+ *                 type: string
+ *               block:
+ *                 type: string
+ *               Time arrived:
+ *                 type: string
+ *               Date: 
+ *                 type: string
+ *               Student/Staff to visit:
+ *                 type: string
+ *               Relationship:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Find_Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//ADMIN
+//register staff
+app.post('/register/staff', async (req, res) => {
+    const rgs = await Staff.register(req.body.username, req.body.password, req.body.name, req.body.phonenumber, req.body.staffnumber,req.body.role)
+    if(req.user.role=="admin"){
+      if (rgs == "username already existed"){
+        return res.status(404).send("The username or staff number already existed")
+    }
+    else if(rgs=="staff number existed"){
+        return res.status(404).send("The username or staff number already existed")
+    }
+    else{
+        return res.status(200).send("New Staff registered")
+    }
+    }
+    else{
+      return res.status(403).send('Unauthorized')
+    }
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Reg_Staff:
+ *       type: object
+ *       properties:
+ *         username: 
+ *           type: string
+ *         password: 
+ *           type: string
+ *         name: 
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         staffnumber: 
+ *           type: string
+ *         role:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /register/staff:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Register Staff
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               staffnumber: 
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Reg_Staff'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//delete staff
+app.delete('/delete/staff', async (req, res) => {
+  const dlts = await Staff.delete(req.body.username)
+  if(req.user.role == "admin"){
+    if (dlts == "staff is not exist"){
+      return res.status(404).send("Staff is not exist")
+      
+  }
+    else {
+      return res.status(200).json({
+
+        status: "STAFF DELETED"
+      })
+  } 
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+   
+  } 
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Delete_Staff:
+ *       type: object
+ *       properties:
+ *         username: 
+ *           type: string
+ */
+
+/**
+ * @swagger
+ * /delete/staff:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Delete Staff
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful delete staff
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Delete_Staff'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//register security
+app.post('/register/security', async (req, res) => {
+    const rgs = await Security.register(req.body.securityname, req.body.securityusername, req.body.password, req.body.phonenumber,req.body.role)
+    if(req.user.role=="admin"){
+      if (rgs == "username already existed"){
+        return res.status(404).send("The security already existed")
+    }
+    else{
+        return res.status(200).send("New Security registered")
+    }
+    }
+    else{
+      return res.status(403).send('Unauthorized')
+    }
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Reg_Security:
+ *       type: object
+ *       properties:
+ *         securityname: 
+ *           type: string
+ *         securityusername: 
+ *           type: string
+ *         password: 
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         role: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /register/security:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Register security
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               securityname: 
+ *                 type: string
+ *               securityusername:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               role: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Reg_Security'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+//delete security
+app.delete('/delete/security', async (req, res) => {
+  const dltse = await Security.delete(req.body.securityusername)
+  if(req.user.role == "admin"){
+    if (dltse == "Security is not exist"){
+      return res.status(404).send("Security is not exist")
+      
+  }
+    else {
+      return res.status(200).json({
+
+        status: "Security deleted"
+      })
+  } 
+  }
+  else{
+    return res.status(403).send('Unauthorized')
+   
+  } 
+})
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Delete_Security:
+ *       type: object
+ *       properties:
+ *         securityusername: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /delete/security:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Delete security
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               securityusername: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Delete_Security'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
+const jwt = require('jsonwebtoken');
+//const Security = require("./security");
+function generateAccessToken(payload) {
+  return jwt.sign(payload, "secretkey", {expiresIn:'1h'});
 }
