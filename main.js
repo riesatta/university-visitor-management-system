@@ -495,10 +495,9 @@ app.post('/register/visitors', async (req, res) => {
  *     responses:
  *       200:
  *         description: Successful register
- * 
  *       404:
  *         description: visit id existed
- *       403:
+ *       401:
  *         Unauthorized
  */
 
