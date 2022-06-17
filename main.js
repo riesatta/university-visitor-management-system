@@ -348,7 +348,7 @@ app.get('/find/publicview/badge/:visitid', async(req,res)=>{
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Badge'
+ *               $ref: '#/components/schemas/Badge
  * 
  *       404:
  *         description: No badge
