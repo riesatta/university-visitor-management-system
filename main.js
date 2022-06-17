@@ -424,8 +424,6 @@ app.post('/register/visitors', async (req, res) => {
  * @swagger
  * /register/visitors:
  *   post:
- *     security:
- *       - bearerAuth: []
  *     description: Register Visitor
  *     requestBody:
  *       required: true
