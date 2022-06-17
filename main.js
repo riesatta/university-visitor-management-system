@@ -98,7 +98,7 @@ app.post('/login/security', async (req, res) => {
 })
 /**
  * @swagger
- * /login:
+ * /login/staff:
  *   post:
  *     description: User Login
  *     requestBody:
