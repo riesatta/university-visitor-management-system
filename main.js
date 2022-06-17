@@ -498,7 +498,7 @@ app.post('/register/visitors', async (req, res) => {
  *       404:
  *         description: visit id existed
  *       401:
- *         Unauthorized
+ *         description: Unauthorized
  */
 
 //update visitor BLOCK
