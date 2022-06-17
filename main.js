@@ -357,7 +357,7 @@ app.get('/find/publicview/badge/:visitid', async(req,res)=>{
 //staff
 app.get('/find/publicview/staff/:username', async(req,res)=>{
   let find= await Staff.view(req.params.username)
-  if(req.user.role=="security"||req.user.role == "admin"){
+
     if(find=="Username cannot be found")
   {
     return res.status(404).send("Username not exist")
@@ -367,10 +367,7 @@ app.get('/find/publicview/staff/:username', async(req,res)=>{
     staffnumber: find.staffnumber,
     phonenumber: find.phonenumber
   })
-  }
-  else{
-    return res.status(403).send('Unauthorized')
-  }
+  
 })
 /**
  * @swagger
@@ -430,20 +427,6 @@ app.use((req, res, next)=>{
 
 ////STAFF///
 //register visitor
-app.post('/register/visitors', async (req, res) => {
-    const rgsv = await Visitor.registervisitor(req.body.name, req.body.phonenumber,req.body.visitid, req.body.block, req.body.time, req.body.date, req.body.tovisit, req.body.Relationship,req.body.reason,req.body.parking)
-    if(req.user.role=="staff"||req.user.role == "admin"){
-      if (rgsv == "visit id existed"){
-        return res.status(404).send("visit id existed")
-    }
-    else{
-        return res.status(200).send("New visitor registered")
-    }
-    }
-    else{
-      return res.status(403).send('Unauthorized')
-    }
-})
 
 /**
  * @swagger
@@ -460,6 +443,20 @@ app.post('/register/visitors', async (req, res) => {
  * security:
  *   - bearerAuth: []
  */
+app.post('/register/visitors', async (req, res) => {
+    const rgsv = await Visitor.registervisitor(req.body.name, req.body.phonenumber,req.body.visitid, req.body.block, req.body.time, req.body.date, req.body.tovisit, req.body.Relationship,req.body.reason,req.body.parking)
+    if(req.user.role=="staff"||req.user.role == "admin"){
+      if (rgsv == "visit id existed"){
+        return res.status(404).send("visit id existed")
+    }
+    else{
+        return res.status(200).send("New visitor registered")
+    }
+    }
+    else{
+      return res.status(403).send('Unauthorized')
+    }
+})
  
 /**
  * @swagger
@@ -484,7 +481,7 @@ app.post('/register/visitors', async (req, res) => {
  *               block:
  *                 type: string
  *               time:
- *                 type
+ *                 type: string
  *               date: 
  *                 type: string
  *               tovisit:
@@ -501,7 +498,7 @@ app.post('/register/visitors', async (req, res) => {
  * 
  *       404:
  *         description: visit id existed
- *       401:
+ *       403:
  *         Unauthorized
  */
 
@@ -638,7 +635,7 @@ app.patch('/update/visitor/date', async (req, res) => {
 //update visitor TIME
 app.patch('/update/visitor/time', async (req, res) => {
   const uptv = await Visitor.updatetime(req.body.name,req.body.time)
-  if(req.user.role=="staff"){
+  if(req.user.role=="staff"||req.user.role=="admin"){
     if (uptv == "Visitor is not exist"){
       return res.status(404).send("visitor does not exist")
   }
@@ -736,7 +733,7 @@ app.patch('/update/visitor/phonenumber', async (req, res) => {
 
 /**
  * @swagger
- * /update/visitor/phoenumber:
+ * /update/visitor/phonenumber:
  *   patch:
  *     security:
  *       - bearerAuth: []
