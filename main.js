@@ -338,7 +338,7 @@ app.get('/find/publicview/badge/:visitid', async(req,res)=>{
  *     description: View Badge
  *     parameters:
  *       - in: path
- *         visitid: visitid
+ *         name: visitid
  *         required: true
  *         schema: 
  *             type: string
@@ -348,7 +348,7 @@ app.get('/find/publicview/badge/:visitid', async(req,res)=>{
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Badge
+ *               $ref: '#/components/schemas/Badge'
  * 
  *       404:
  *         description: No badge
@@ -395,7 +395,7 @@ app.get('/find/publicview/staff/:username', async(req,res)=>{
  *     description: View Staff
  *     parameters:
  *       - in: path
- *         username: username
+ *         name: username
  *         required: true
  *         schema: 
  *             type: string
