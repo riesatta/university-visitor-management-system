@@ -63,6 +63,66 @@ app.post('/login/staff', async (req, res) => {
     }
 })
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Staff:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         username: 
+ *           type: string
+ *         password: 
+ *           type: string
+ *         name:
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         staffnumber:
+ *           type: string
+ *         role:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /login/staff:
+ *   post:
+ *     description: Staff Login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               staffnumber:
+ *                 type
+ *               role: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Staff'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
 //admin login
 app.post('/login/adminonly', async (req, res) => {
   const ad = await Admin.login(req.body.name, req.body.password, req.body.role)
@@ -79,6 +139,45 @@ app.post('/login/adminonly', async (req, res) => {
       });
   }
 })
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Admin:
+ *       type: object
+ *       properties:
+ *         token: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /login/adminonly:
+ *   post:
+ *     description: Admin Login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               token: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Admin'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
 //security login
 app.post('/login/security', async (req, res) => {
     const secu = await Security.logins(req.body.securityusername, req.body.password, req.body.role)
@@ -96,11 +195,32 @@ app.post('/login/security', async (req, res) => {
         });
     }
 })
+
 /**
  * @swagger
- * /login/staff:
+ * components:
+ *   schemas:
+ *     Security:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         securityname: 
+ *           type: string
+ *         securityusername: 
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         role:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /login/security:
  *   post:
- *     description: User Login
+ *     description: Security Login
  *     requestBody:
  *       required: true
  *       content:
@@ -108,9 +228,9 @@ app.post('/login/security', async (req, res) => {
  *           schema: 
  *             type: object
  *             properties:
- *               username: 
+ *               securityusername: 
  *                 type: string
- *               password: 
+ *               role: 
  *                 type: string
  *     responses:
  *       200:
@@ -118,10 +238,10 @@ app.post('/login/security', async (req, res) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               $ref: '#/components/schemas/Security'
  * 
  *       404:
- *         description: Invalid username or password
+ *         description: Wrong password or username
  */
 
 
@@ -143,6 +263,68 @@ app.get('/find/publicview/visitor/:name', async(req,res)=>{
   })
 })
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Visitor:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         name: 
+ *           type: string
+ *         phonenumber: 
+ *           type: string
+ *         visitid:
+ *           type: string
+ *         time:
+ *           type: string
+ *         date:
+ *           type: string
+ *         tovisit:
+ *           type: string
+ *         Relationship:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /find/publicview/visitor/:name:
+ *   get:
+ *     description: View Visitor
+ *     requestHeader:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               visitorid:
+ *                 type: string
+ *               time:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *               tovisit:
+ *                 type: string
+ *               Relationship: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
 //badge
 app.get('/find/publicview/badge/:visitid', async(req,res)=>{
   const publicb= await Badge.viewbadge(req.params.visitid)
@@ -161,6 +343,74 @@ app.get('/find/publicview/badge/:visitid', async(req,res)=>{
     parking: publicb.parking,
   })
 })
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Badge:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         name: 
+ *           type: string
+ *         visitid: 
+ *           type: string
+ *         reason:
+ *           type: string
+ *         time:
+ *           type: string
+ *         tovisit:
+ *           type: string
+ *         block to visit:
+ *           type: string
+ *         parking:
+ *           type: string
+ *         date:
+ *           type
+ *          
+ */
+
+/**
+ * @swagger
+ * /find/publicview/badge/:visitid:
+ *   get:
+ *     description: View Badge
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               visitid:
+ *                 type: string
+ *               reason:
+ *                 type: string
+ *               time:
+ *                 type: string
+ *               tovisit:
+ *                 type
+ *               block to visit: 
+ *                 type: string
+ *               parking:
+ *                 type: 
+ *               date:
+ *                 type:
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Badge'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
  
 //staff
 app.get('/find/publicview/staff/:username', async(req,res)=>{
@@ -180,6 +430,63 @@ app.get('/find/publicview/staff/:username', async(req,res)=>{
     return res.status(403).send('Unauthorized')
   }
 })
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     View_Staff:
+ *       type: object
+ *       properties:
+ *         username: 
+ *           type: string
+ *         password: 
+ *           type: string
+ *         name:
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         staffnumber:
+ *           type: string
+ *         role:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /find/publicview/staff/:username:
+ *   get:
+ *     description: View Staff
+ *     parameters:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               staffnumber:
+ *                 type
+ *               role: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/View_Staff'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
 
 
 //only authorized person can access
@@ -215,6 +522,79 @@ app.post('/register/visitors', async (req, res) => {
     }
 })
 
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Reg_Visitor:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         phonenumber: 
+ *           type: string
+ *         visitid:
+ *           type: string
+ *         block to visit:
+ *           type: string
+ *         time:
+ *           type: string
+ *         date:
+ *           type: string
+ *         tovisit:
+ *           type: string
+ *         Relationship:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /register/visitors:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Register Visitor
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               visitid:
+ *                 type: string
+ *               block to visit:
+ *                 type: string
+ *               time:
+ *                 type
+ *               date: 
+ *                 type: string
+ *               tovisit:
+ *                 type: string
+ *               Relationship: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful register
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Reg_Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
 //update visitor BLOCK
 app.patch('/update/visitor/block', async (req, res) => {
   const uptv = await Visitor.updateblock(req.body.name,req.body.block)
@@ -233,6 +613,57 @@ app.patch('/update/visitor/block', async (req, res) => {
     return res.status(403).send('Unauthorized')
   }
 })
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Block_Visitor:
+ *       type: object
+ *       properties:
+ *         _id: 
+ *           type: string
+ *         name: 
+ *           type: string
+ *         block to visit: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /update/visitor/block:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Update visitor's block
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               block to visit:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Block_Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
 
 //update visitor DATE
 app.patch('/update/visitor/date', async (req, res) => {
@@ -253,6 +684,63 @@ app.patch('/update/visitor/date', async (req, res) => {
   }
 })
 
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Visitor_Date:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         date: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /update/:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Staff Login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               staffnumber:
+ *                 type
+ *               role: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Visitor_Date'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
 //update visitor TIME
 app.patch('/update/visitor/time', async (req, res) => {
   const uptv = await Visitor.updatetime(req.body.name,req.body.time)
@@ -272,6 +760,55 @@ app.patch('/update/visitor/time', async (req, res) => {
   }
 })
 
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Visitor_Time:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         time: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /update/visitor/time:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Update visitor's timr
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               time:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Visitor_Time'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
 //update visitor PHONE NUMBER
 app.patch('/update/visitor/phonenumber', async (req, res) => {
   const uptv = await Visitor.updatephonenumber(req.body.name,req.body.phonenumber)
@@ -290,6 +827,55 @@ app.patch('/update/visitor/phonenumber', async (req, res) => {
     return res.status(403).send('Unauthorized')
   }
 })
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Visitor_Time:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         time: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /update/visitor/block:
+ *   patch:
+ *     - bearerAuth: []
+ *     description: Update visitor's block
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               time:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Visitor_Time'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
   //delete visitor
   app.delete('/delete/visitor', async (req, res) => {
       const dlt = await Visitor.delete(req.body.name)
@@ -311,6 +897,50 @@ app.patch('/update/visitor/phonenumber', async (req, res) => {
       } 
   })
 
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Delete_Visitor:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /delete/visitor:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Delete Visitor
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Delete_Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
 
 //SECURITY
 
@@ -343,6 +973,73 @@ app.listen(port, () => {
 
 })
 
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Find_Visitor:
+ *       type: object
+ *       properties:
+ *         name: 
+ *           type: string
+ *         phone number: 
+ *           type: string
+ *         Time arrived: 
+ *           type: string
+ *         Date:
+ *           type: string
+ *         Student/Staff to visit: 
+ *           type: string
+ *         Relationship:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /find/visitor:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Update visitor's block
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               name: 
+ *                 type: string
+ *               phone number:
+ *                 type: string
+ *               block:
+ *                 type: string
+ *               Time arrived:
+ *                 type: string
+ *               Date: 
+ *                 type: string
+ *               Student/Staff to visit:
+ *                 type: string
+ *               Relationship:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Find_Visitor'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
 //ADMIN
 //register staff
 app.post('/register/staff', async (req, res) => {
@@ -362,6 +1059,71 @@ app.post('/register/staff', async (req, res) => {
       return res.status(403).send('Unauthorized')
     }
 })
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Reg_Staff:
+ *       type: object
+ *       properties:
+ *         username: 
+ *           type: string
+ *         password: 
+ *           type: string
+ *         name: 
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         staffnumber: 
+ *           type: string
+ *         role:
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /register/staff:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Register Staff
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               staffnumber: 
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Reg_Staff'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
 
 //delete staff
 app.delete('/delete/staff', async (req, res) => {
@@ -384,6 +1146,50 @@ app.delete('/delete/staff', async (req, res) => {
   } 
 })
 
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Delete_Staff:
+ *       type: object
+ *       properties:
+ *         username: 
+ *           type: string
+ */
+
+/**
+ * @swagger
+ * /delete/staff:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Delete Staff
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               username: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful delete staff
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Delete_Staff'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
 //register security
 app.post('/register/security', async (req, res) => {
     const rgs = await Security.register(req.body.securityname, req.body.securityusername, req.body.password, req.body.phonenumber,req.body.role)
@@ -399,6 +1205,67 @@ app.post('/register/security', async (req, res) => {
       return res.status(403).send('Unauthorized')
     }
 })
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Reg_Security:
+ *       type: object
+ *       properties:
+ *         securityname: 
+ *           type: string
+ *         securityusername: 
+ *           type: string
+ *         password: 
+ *           type: string
+ *         phonenumber:
+ *           type: string
+ *         role: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /register/security:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Register security
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               securityname: 
+ *                 type: string
+ *               securityusername:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *               role: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Reg_Security'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
 
 //delete security
 app.delete('/delete/security', async (req, res) => {
@@ -420,6 +1287,52 @@ app.delete('/delete/security', async (req, res) => {
    
   } 
 })
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Delete_Security:
+ *       type: object
+ *       properties:
+ *         securityusername: 
+ *           type: string
+ *          
+ */
+
+/**
+ * @swagger
+ * /delete/security:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     description: Delete security
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: 
+ *             type: object
+ *             properties:
+ *               securityusername: 
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Delete_Security'
+ * 
+ *       404:
+ *         description: Wrong password or username
+ */
+
 const jwt = require('jsonwebtoken');
 //const Security = require("./security");
 function generateAccessToken(payload) {
