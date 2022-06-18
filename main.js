@@ -457,8 +457,6 @@ app.post('/register/visitors', async (req, res) => {
  *         description: Successful register
  *       404:
  *         description: visit id existed
- *       401:
- *         description: Unauthorized
  */
 
 //only authorized person can access

@@ -52,14 +52,14 @@ static async logins(securityusername,password,role){
   
 
 
-   static async delete(securityusername,role) {
+   static async delete(securityusername) {
     const exist= await security.findOne({securityusername: securityusername})
      if(exist){
        const data= await security.deleteOne(
          {securityusername : securityusername}
          ).then(result=>{ 
            console.log(result)})
-         return data
+         return exist
      }
      else{
        return "Security is not exist"

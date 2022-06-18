@@ -151,7 +151,7 @@ it('security login failed', async () => {
   it('visitor register', async()=>{
     return request
     .post('/register/visitors')
-    .send({name:"Timo Werner",phonenumber:"01119692051",visitid:"10",block:"Satria",time:"5.00PM",date: "20/6/2022",tovisit:"Kai Havertz",Relationship:"Brother",reason:"Family visit",parking:"307B"})
+    .send({name:"Kevin De BrUYNE",phonenumber:"01119692051",visitid:"17",block:"Satria",time:"5.00PM",date: "20/6/2022",tovisit:"Kai Havertz",Relationship:"Brother",reason:"Family visit",parking:"307B"})
     .expect(200)
   });
 

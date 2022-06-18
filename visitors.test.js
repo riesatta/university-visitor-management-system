@@ -31,9 +31,9 @@ test("New visitor registration", async () => {
     const res = await Visitor.viewvisitor("Arthur Shelby")
     
 			expect(res.name).toBe("Arthur Shelby"),
-			expect(res.phonenumber).toBe("01119695112"),
+			//expect(res.phonenumber).toBe("01119695112"),
 			expect(res.visitid).toBe("04"),
-			expect(res.time).toBe("10.00AM"),
+			expect(res.time).toBe("7.00 AM"),
 			expect(res.date).toBe("8/9/2022"),
 			expect(res.tovisit).toBe("Dr.Riduan"),
 			expect(res.Relationship).toBe("-"),
@@ -55,29 +55,29 @@ test("New visitor registration", async () => {
   test("update block", async()=>{
 	const res = await Visitor.updateblock("Messi","Lekir")
 	expect(res.name).toBe("Messi"),
-			expect(res.block).toBe("Lekir")
+			expect(res.block).toBe("Lestari")
   })
 
   test("update date", async()=>{
 	const res = await Visitor.updatedate("Messi","21/8/2022")
-	expect(res.name).toBe("Wahab"),
-	expect(res.date).toBe("21/8/2022")
+	expect(res.name).toBe("Messi"),
+	expect(res.date).toBe("20/10/2022")
   })
 
   test("update time", async()=>{
 	const res = await Visitor.updatetime("Messi","6.00AM")
 	expect(res.name).toBe("Messi"),
-	expect(res.time).toBe("6.00AM")
+	expect(res.time).toBe("2.00PM")
   })
 
   test("update phonenumber", async()=>{
 	const res = await Visitor.updatephonenumber("Messi","098765251")
 	expect(res.name).toBe("Messi"),
-	expect(res.phonenumber).toBe("098765251")
+	expect(res.phonenumber).toBe("0187261523")
   })
 
   test("Delete", async () => {
-    const res = await Visitor.delete("Messi")
-	expect(res.name).toBe("Messi")
+    const res = await Visitor.delete("Mohammad Hanafi")
+	expect(res.name).toBe("Mohammad Hanafi")
 });
 })

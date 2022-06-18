@@ -25,8 +25,8 @@ describe("User Account", () => {
     
     test("Delete", async () => {
       const res = await Badge.deletebadge("30")
-      expect(res.visitid).toBe("30")
-    })
+    expect(res.visitid).toBe("30")
+  });
   
     test("View", async () => {
       const res = await Badge.viewbadge("01")
@@ -36,10 +36,8 @@ describe("User Account", () => {
       expect(res.time).toBe("5.00PM"),
       expect(res.date).toBe("21/6/2022"),
       expect(res.tovisit).toBe("Luong In Lee"),
-  
       expect(res.reason).toBe("Family visit"),
       expect(res.parking).toBe("206A")
-
     })
     
   

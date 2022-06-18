@@ -39,7 +39,7 @@ describe("User Account", () => {
   })
 
   test("Staff duplicate staff number", async () => {
-    const res = await User.register(fusername, fpassword ,fname ,fphonenumber,fstaffnumber,"staff")
+    const res = await User.register("sas", "86366" ,fname ,fphonenumber,"86366","staff")
     expect(res).toBe("staff number existed")
   })
 
@@ -57,9 +57,9 @@ describe("User Account", () => {
   })
   
   test("Delete", async () => {
-    const res = await User.delete("Jevon_Sawayn")
-    expect(res.username).toBe("Jevon_Sawayn")
-  })
+    const res = await User.delete("Ericka.Senger43")
+	expect(res.username).toBe("Ericka.Senger43")
+});
 
   test("View",  async () => {
     const res = await User.view("Aiman")

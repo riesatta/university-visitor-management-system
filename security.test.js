@@ -34,7 +34,7 @@ describe("User Account", () => {
     })
   
     test("Duplicate username",async () => {
-      const res = await Security.register(username, password ,name ,phonenumber,staffnumber,"security")
+      const res = await Security.register("Earl_Weimann", password ,name ,phonenumber,staffnumber,"security")
       expect(res).toBe("username already existed")
     })
   
@@ -51,9 +51,9 @@ describe("User Account", () => {
     })
     
     test("Delete", async () => {
-      const res = await Security.delete("Jerald Mante","security")
-      expect(res.securityusername).toBe("Jerald Mante")
-    })
+      const res = await Security.delete("Abe_Sporer")
+    expect(res.securityusername).toBe("Abe_Sporer")
+  });
   
 
     
